@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Quantum - Escalation Matrix</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .logo {
+      width: 150px;
+      margin-bottom: 20px;
+    }
+
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      margin-bottom: 20px;
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+
+    h1 {
+      color: #b71c1c;
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+    }
+
+    .dropdown-container {
+      display: flex;
+      align-items: center;
+    }
+
+    .dropdown-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+      margin-right: 10px;
+    }
+
+    select {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      width: 200px;
+    }
+
+    .table-container {
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background-color: #f2f2f2;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+    }
+
+    th {
+      background: linear-gradient(to right, #E41710, #00599E);
+      color: white;
+    }
+
+    tr:nth-child(even) {
+      background-color: #e8e8e8;
+    }
+
+    tr:nth-child(odd) {
+      background-color: #f5f5f5;
+    }
+
+    tr:hover {
+      background-color: #f0f0f0;
+    }
+
+    td {
+      font-size: 14px;
+      color: black;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="https://lh4.googleusercontent.com/cGPgINOsF9UJJyJ_k9CEPWknoYrRyJRoKY2EJcuGWzTIoipIl4uOt81oVU_AzVnS5WYbYI5ODTWdoNEbo4ISyEhgUDi3EVv0KjZSec6N_3XmgL8uHoeYbUORGitYYVZQKg=w1280" alt="Quantum Logo" class="logo">
+
+    <div class="header-container">
+      <h1>Escalation Matrix</h1>
+      <div class="dropdown-container">
+        <div class="dropdown-title">Select the State</div>
+        <select id="state-selector" onchange="loadDataFromSheet()">
+          <option value="">Select a State</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Department</th>
+            <th>Escalation 1</th>
+            <th>Email 1</th>
+            <th>Escalation 2</th>
+            <th>Email 2</th>
+            <th>Escalation 3</th>
+            <th>Email 3</th>
+          </tr>
+        </thead>
+        <tbody id="data-table">
+          <!-- Data rows will be injected here by JavaScript -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // Fetch sheet names and set "PAN INDIA" as default
+    function fetchSheetNames() {
+      google.script.run.withSuccessHandler(function(sheetNames) {
+        const stateDropdown = document.getElementById('state-selector');
+        stateDropdown.innerHTML = '<option value="">Select a State</option>';
+
+        let defaultState = 'PAN INDIA'; // Set PAN INDIA as default
+        sheetNames.forEach(function(sheet) {
+          const option = document.createElement('option');
+          option.value = sheet;
+          option.textContent = sheet;
+          stateDropdown.appendChild(option);
+        });
+
+        // Set "PAN INDIA" as selected by default if it exists
+        if (sheetNames.includes(defaultState)) {
+          stateDropdown.value = defaultState;
+          loadDataFromSheet(); // Automatically load data for PAN INDIA
+        }
+      }).getSheetNames();
+    }
+
+    // Load data based on the selected sheet
+    function loadDataFromSheet() {
+      const selectedSheet = document.getElementById('state-selector').value;
+      if (selectedSheet) {
+        google.script.run.withSuccessHandler(function(data) {
+          const tableBody = document.getElementById('data-table');
+          tableBody.innerHTML = '';
+
+          data.forEach(function(row) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${row[0] || "N/A"}</td>
+              <td>${row[1] || "N/A"}</td>
+              <td>${row[2] || "N/A"}</td>
+              <td>${row[3] || "N/A"}</td>
+              <td>${row[4] || "N/A"}</td>
+              <td>${row[5] || "N/A"}</td>
+              <td>${row[6] || "N/A"}</td>
+            `;
+            tableBody.appendChild(tr);
+          });
+        }).getDataFromSheet(selectedSheet);
+      }
+    }
+
+    // Run fetchSheetNames when the page loads
+    window.onload = fetchSheetNames;
+  </script>
+</body>
+</html>
